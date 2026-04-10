@@ -22,12 +22,13 @@ jobs:
           curl -sSL https://install.python-poetry.org | python3 -
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
+      # ✅ FIXED HERE
       - name: Install dependencies
-        run: poetry install
+        run: poetry install --no-root
 
       - name: Run tests
         run: poetry run pytest
 
-      # 🔥 REQUIRED BY YOUR ASSIGNMENT
+      # ✅ REQUIRED BY ASSIGNMENT
       - name: Build Docker image
         run: docker build -t fastapi-app:latest .
