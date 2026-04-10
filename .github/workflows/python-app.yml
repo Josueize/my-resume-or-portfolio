@@ -1,44 +1,33 @@
-name: FastAPI CI Pipeline
+name: CI Pipeline
 
 on:
   push:
-    branches:
-      - main
+    branches: [ "main" ]
 
 jobs:
-  build:
+  build-test-docker:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout repository
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      # 2. Set up Python 3.9
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: "3.9"
+          python-version: "3.11"
 
-      # 3. Cache Poetry dependencies (speeds up builds)
-      - name: Cache Poetry dependencies
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cache/pypoetry
-            ~/.virtualenvs
-          key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-poetry-
-
-      # 4. Install Poetry
       - name: Install Poetry
-        run: pip install poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
 
-      # 5. Install dependencies
-      - name: Install project dependencies
-        run: poetry install --no-root --no-interaction
+      - name: Install dependencies
+        run: poetry install
 
-      # 6. Run tests (pipeline fails if tests fail ❌)
       - name: Run tests
         run: poetry run pytest
+
+      # 🔥 REQUIRED BY YOUR ASSIGNMENT
+      - name: Build Docker image
+        run: docker build -t fastapi-app:latest .
